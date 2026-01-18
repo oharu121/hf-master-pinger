@@ -7,6 +7,7 @@ from datetime import datetime
 import httpx
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from fastapi import FastAPI
+from fastapi.responses import PlainTextResponse
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -58,8 +59,8 @@ async def ping_worker_job(url: str):
 
 async def self_ping():
     """Ping own health endpoint to keep the Space alive."""
-    port = int(os.getenv("FASTAPI_PORT", "7861"))
-    url = f"http://localhost:{port}/health"
+    port = int(os.getenv("PORT", "7860"))
+    url = f"http://localhost:{port}/healthz"
     try:
         async with httpx.AsyncClient() as client:
             await client.get(url, timeout=10)
@@ -96,10 +97,10 @@ async def lifespan(app: FastAPI):
 app = FastAPI(title="HF Master Pinger", lifespan=lifespan)
 
 
-@app.get("/health")
-async def health():
-    """Health check endpoint."""
-    return {"status": "alive"}
+@app.get("/healthz")
+async def healthz() -> PlainTextResponse:
+    """Lightweight liveness probe for keep-alive pings."""
+    return PlainTextResponse("ok")
 
 
 @app.get("/status")

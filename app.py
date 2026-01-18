@@ -1,15 +1,9 @@
-import threading
 from datetime import datetime
 
 import gradio as gr
 import uvicorn
 
-from main import WORKERS, app as fastapi_app, start_time, worker_status
-
-
-def run_fastapi_server():
-    """Run FastAPI server on port 7861 (internal only)."""
-    uvicorn.run(fastapi_app, host="127.0.0.1", port=7861, log_level="warning")
+from main import WORKERS, app, start_time, worker_status
 
 
 def get_status() -> tuple[str, str, list[list[str]]]:
@@ -66,11 +60,9 @@ def create_ui() -> gr.Blocks:
     return demo
 
 
-if __name__ == "__main__":
-    # Start FastAPI in background thread (handles scheduler and /health, /status endpoints)
-    fastapi_thread = threading.Thread(target=run_fastapi_server, daemon=True)
-    fastapi_thread.start()
+# Create Gradio UI and mount on FastAPI
+demo = create_ui()
+combined_app = gr.mount_gradio_app(app, demo, path="/")
 
-    # Launch Gradio UI on main port (7860)
-    ui = create_ui()
-    ui.launch(server_name="0.0.0.0", server_port=7860)
+if __name__ == "__main__":
+    uvicorn.run(combined_app, host="0.0.0.0", port=7860)
