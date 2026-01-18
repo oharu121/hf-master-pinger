@@ -1,0 +1,16 @@
+[project]
+name = "hf-master-pinger"
+version = "0.1.0"
+description = "Centralized pinger to keep HF Spaces alive"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "fastapi>=0.115.0",
+    "uvicorn>=0.34.0",
+    "httpx>=0.28.0",
+    "apscheduler>=3.11.0",
+    "gradio>=5.0.0",
+]
+
+[dependency-groups]
+dev = ["pyright>=1.1.390"]
