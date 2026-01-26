@@ -49,36 +49,50 @@ A centralized pinger service that keeps multiple Hugging Face Spaces alive by pi
 
 ## Configuration
 
-Edit `main.py` to configure workers:
+Edit `main.py` to configure workers. There are two types of workers:
+
+### Keep-Alive Pings
+
+Simple health checks to prevent Spaces from sleeping:
 
 ```python
 WORKERS = [
-    {"url": "https://your-space.hf.space/health", "interval_minutes": 2},
-    {"url": "https://another-space.hf.space/health", "interval_minutes": 5},
+    {"url": "https://your-space.hf.space/health", "interval_minutes": 5},
+    {"url": "https://another-space.hf.space/healthz", "interval_minutes": 10},
 ]
 ```
 
-### Auto-Restart Configuration
+### DB Readiness Monitoring with Auto-Restart
 
-To enable automatic restart of a Space after consecutive health check failures, add `space_id` to the worker config:
+For Spaces that need database connectivity monitoring and automatic restart on failure, add `space_id`:
 
 ```python
 WORKERS = [
+    # Keep-alive (prevents sleep)
+    {"url": "https://your-space.hf.space/health", "interval_minutes": 5},
+    # DB readiness monitoring (triggers restart on failure)
     {
         "url": "https://your-space.hf.space/healthz/readiness",
         "interval_minutes": 60,
-        "space_id": "username/space-name",  # Enables auto-restart
+        "space_id": "username/space-name",
     },
 ]
 ```
 
+This pattern allows you to:
+- Keep a Space awake with frequent pings (5 min)
+- Monitor DB health less frequently (60 min)
+- Auto-restart after 3 consecutive DB check failures
+
 | Setting | Default | Description |
 |---------|---------|-------------|
-| `space_id` | None | HF Space ID (e.g., `username/space-name`). Required for auto-restart. |
-| Failure threshold | 3 | Number of consecutive failures before auto-restart |
+| `url` | Required | Health check endpoint URL |
+| `interval_minutes` | Required | Ping frequency in minutes |
+| `space_id` | None | HF Space ID for auto-restart (e.g., `username/space-name`) |
+| Failure threshold | 3 | Consecutive failures before auto-restart |
 
-**Requirements:**
-- `HF_TOKEN` environment variable with write permission
+**Requirements for auto-restart:**
+- `HF_RESTART_TOKEN` environment variable with write permission
 - Generate token at https://huggingface.co/settings/tokens
 
 ## Endpoints

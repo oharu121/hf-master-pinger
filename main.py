@@ -13,15 +13,18 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 WORKERS = [
+    # Keep-alive pings (no space_id)
     {"url": "https://oharu121-discord-gemini-bot.hf.space/healthz", "interval_minutes": 5},
+    {"url": "https://oharu121-n8n-workflow.hf.space/health", "interval_minutes": 5},
+    {"url": "https://oharu121-keiba-oracle.hf.space/healthz", "interval_minutes": 10},
+    {"url": "https://oharu121-rag-demo.hf.space/healthz", "interval_minutes": 10},
+    {"url": "https://oharu121-rich-chat-demo.hf.space/healthz", "interval_minutes": 10},
+    # DB readiness monitoring (with space_id for auto-restart)
     {
         "url": "https://oharu121-n8n-workflow.hf.space/healthz/readiness",
         "interval_minutes": 60,
         "space_id": "oharu121/n8n-workflow",
     },
-    {"url": "https://oharu121-keiba-oracle.hf.space/healthz", "interval_minutes": 10},
-    {"url": "https://oharu121-rag-demo.hf.space/healthz", "interval_minutes": 10},
-    {"url": "https://oharu121-rich-chat-demo.hf.space/healthz", "interval_minutes": 10},
 ]
 
 HF_RESTART_TOKEN = os.getenv("HF_RESTART_TOKEN")
@@ -105,6 +108,8 @@ async def ping_worker_job(worker: dict[str, str | int]):
         restarted = await restart_space(str(space_id))
         if restarted:
             worker_status[url]["consecutive_failures"] = 0
+            worker_status[url]["last_restart_time"] = datetime.now().isoformat()
+            worker_status[url]["total_restarts"] = int(worker_status[url].get("total_restarts", 0)) + 1
 
 
 async def self_ping():
