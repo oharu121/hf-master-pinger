@@ -45,6 +45,7 @@ A centralized pinger service that keeps multiple Hugging Face Spaces alive by pi
 | 120s timeout | Handles cold-start delays |
 | Self-ping | Keeps master alive independently |
 | Status dashboard | Gradio UI showing worker health |
+| Auto-restart | Automatically restart Spaces after consecutive health check failures |
 
 ## Configuration
 
@@ -56,6 +57,29 @@ WORKERS = [
     {"url": "https://another-space.hf.space/health", "interval_minutes": 5},
 ]
 ```
+
+### Auto-Restart Configuration
+
+To enable automatic restart of a Space after consecutive health check failures, add `space_id` to the worker config:
+
+```python
+WORKERS = [
+    {
+        "url": "https://your-space.hf.space/healthz/readiness",
+        "interval_minutes": 60,
+        "space_id": "username/space-name",  # Enables auto-restart
+    },
+]
+```
+
+| Setting | Default | Description |
+|---------|---------|-------------|
+| `space_id` | None | HF Space ID (e.g., `username/space-name`). Required for auto-restart. |
+| Failure threshold | 3 | Number of consecutive failures before auto-restart |
+
+**Requirements:**
+- `HF_TOKEN` environment variable with write permission
+- Generate token at https://huggingface.co/settings/tokens
 
 ## Endpoints
 

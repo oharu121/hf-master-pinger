@@ -28,7 +28,9 @@ def get_status() -> tuple[str, str, list[list[str]]]:
         ws = worker_status.get(url, {})
         last_ping = ws.get("last_ping", "Not yet")
         ping_status = "✅" if ws.get("status") == "ok" else ("❌" if ws.get("status") == "failed" else "⏳")
-        table_data.append([url, interval, str(last_ping), ping_status])
+        consecutive_failures = ws.get("consecutive_failures", 0)
+        auto_restart = "🔄" if worker.get("space_id") else ""
+        table_data.append([url, interval, str(last_ping), ping_status, str(consecutive_failures), auto_restart])
 
     return status, uptime, table_data
 
@@ -44,7 +46,7 @@ def create_ui() -> gr.Blocks:
             uptime_text = gr.Textbox(label="Uptime", interactive=False)
 
         worker_table = gr.Dataframe(
-            headers=["URL", "Interval", "Last Ping", "Status"],
+            headers=["URL", "Interval", "Last Ping", "Status", "Failures", "Auto-Restart"],
             label="Workers",
             interactive=False,
         )
