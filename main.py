@@ -16,6 +16,7 @@ WORKERS = [
     # Keep-alive pings (no space_id)
     {"url": "https://oharu121-discord-gemini-bot.hf.space/healthz", "interval_minutes": 5},
     {"url": "https://oharu121-n8n-workflow.hf.space/health", "interval_minutes": 5},
+    {"url": "https://oharu121-oharu-clawdbot.hf.space/", "interval_minutes": 5},
     {"url": "https://oharu121-keiba-oracle.hf.space/healthz", "interval_minutes": 10},
     {"url": "https://oharu121-rag-demo.hf.space/healthz", "interval_minutes": 10},
     {"url": "https://oharu121-rich-chat-demo.hf.space/healthz", "interval_minutes": 10},
