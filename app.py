@@ -4,7 +4,8 @@ from datetime import datetime
 import gradio as gr
 import uvicorn
 
-from main import WORKERS, app, start_time, worker_status
+import main
+from main import WORKERS, app, worker_status
 
 
 def extract_worker_name(url: str) -> str:
@@ -17,11 +18,11 @@ def extract_worker_name(url: str) -> str:
 def get_status() -> tuple[str, str, list[list[str]], list[list[str]]]:
     """Get current status for Gradio UI."""
     # Overall status
-    status = "🟢 Online" if start_time else "🔴 Offline"
+    status = "🟢 Online" if main.start_time else "🔴 Offline"
 
     # Uptime
-    if start_time:
-        uptime_seconds = int((datetime.now() - start_time).total_seconds())
+    if main.start_time:
+        uptime_seconds = int((datetime.now() - main.start_time).total_seconds())
         hours, remainder = divmod(uptime_seconds, 3600)
         minutes, seconds = divmod(remainder, 60)
         uptime = f"{hours}h {minutes}m {seconds}s"
