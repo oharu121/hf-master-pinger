@@ -20,6 +20,7 @@ WORKERS = [
     {"url": "https://oharu121-keiba-oracle.hf.space/healthz", "interval_minutes": 10},
     {"url": "https://oharu121-rag-demo.hf.space/healthz", "interval_minutes": 10},
     {"url": "https://oharu121-rich-chat-demo.hf.space/healthz", "interval_minutes": 10},
+    {"url": "https://oharu121-agentic-sql-poc.hf.space/healthz", "interval_minutes": 10},
     # DB readiness monitoring (with space_id for auto-restart)
     {
         "url": "https://oharu121-n8n-workflow.hf.space/healthz/readiness",
